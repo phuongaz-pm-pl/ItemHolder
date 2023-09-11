@@ -1,0 +1,6 @@
+name: ItemHolder
+api: 5.0.0
+version: 0.1-Alpha
+src-namespace-prefix: phuongaz\itemholder
+main: phuongaz\itemholder\ItemHolder
+author: phuongaz
