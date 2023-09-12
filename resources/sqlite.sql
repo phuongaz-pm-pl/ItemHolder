@@ -15,6 +15,11 @@ SELECT item_data FROM holders WHERE prefix = :prefix
 -- #         :item_data string
 INSERT INTO holders (prefix, item_data) VALUES (:prefix, :item_data)
 -- #     }
+-- #    { update
+-- #         :prefix string
+-- #         :item_data string
+UPDATE holders SET item_data = :item_data WHERE prefix = :prefix
+-- #    }
 -- #     { delete
 -- #         :prefix string
 DELETE FROM holders WHERE prefix = :prefix

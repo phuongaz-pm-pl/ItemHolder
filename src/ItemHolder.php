@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace phuongaz\itemholder;
 
 use phuongaz\itemholder\provider\SQLiteProvider;
-use phuongaz\itemholder\provider\Types;
-use pocketmine\item\Item;
-use pocketmine\item\VanillaItems;
 use pocketmine\plugin\PluginBase;
-use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 use poggit\libasynql\libasynql;
 

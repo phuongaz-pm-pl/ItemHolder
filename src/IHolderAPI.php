@@ -27,4 +27,13 @@ final class IHolderAPI {
             $callback($data);
         });
     }
+
+    public static function update(string $prefix, Item|array $itemData, ?\Closure $callback = null) : void {
+        $db = ItemHolder::getInstance()->getDatabase();
+        Await::f2c(
+            /** @throws Exception */
+            function() use ($db, $prefix, $itemData, $callback) {
+            yield $db->awaitUpdate($prefix, $itemData, $callback);
+        });
+    }
 }

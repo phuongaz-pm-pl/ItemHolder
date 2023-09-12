@@ -9,7 +9,6 @@ use Generator;
 use pocketmine\item\Item;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\TreeRoot;
-use pocketmine\Server;
 use poggit\libasynql\DataConnector;
 use SOFe\AwaitGenerator\Await;
 
@@ -17,6 +16,7 @@ class SQLiteProvider {
     CONST INIT = "holders.init";
     const INSERT = "holders.insert";
     const SELECT = "holders.select";
+    const UPDATE = "holders.update";
     const DELETE = "holders.delete";
 
     private LittleEndianNbtSerializer $serializer;
@@ -33,18 +33,19 @@ class SQLiteProvider {
     public function awaitRegister(string $prefix, array|Item $item, ?\Closure $callback = null) : Generator {
         $connector = $this->getConnector();
         $rows = yield from $connector->asyncSelect(self::SELECT, ["prefix" => $prefix]);
-
-        if(!is_null($callback)) {
-            $callback(empty($rows));
-        }
+        $isRegister = false;
 
         if(empty($rows)) {
             $itemData = $this->encodeItemData((is_array($item) ? $item : [$item]));
-            Server::getInstance()->getLogger()->error($itemData);
-            yield from $connector->asyncInsert(self::INSERT, ["prefix" => $prefix, "item_data" => $itemData]);
-            return true;
+            yield $connector->asyncInsert(self::INSERT, ["prefix" => $prefix, "item_data" => $itemData]);
+            $isRegister = true;
         }
-        return false;
+
+        if(!is_null($callback)) {
+            $callback($isRegister);
+        }
+
+        return $isRegister;
     }
 
     /**
@@ -55,7 +56,7 @@ class SQLiteProvider {
         $rows = yield from $connector->asyncSelect(self::SELECT, ["prefix" => $prefix]);
 
         if (empty($rows)) {
-            throw new Exception("Item not found for prefix: $prefix");
+            throw new Exception("Data not found for prefix: $prefix");
         }
 
         $itemData = $this->decodeItemDataRaw($rows[0]["item_data"]);
@@ -65,6 +66,21 @@ class SQLiteProvider {
         }
 
         return $itemData;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function awaitUpdate(string $prefix, Item|array $itemData, ?\Closure $callback = null) : Generator {
+        $connector = $this->getConnector();
+        $rows = yield from $connector->asyncSelect(self::SELECT, ["prefix" => $prefix]);
+
+        if (empty($rows)) {
+            throw new Exception("Data not found for prefix: $prefix");
+        }
+        $itemData = $this->encodeItemData((is_array($itemData) ? $itemData : [$itemData]));
+        yield $connector->asyncChange(self::UPDATE, ["prefix" => $prefix, "item_data" => $itemData]);
+        if(!is_null($callback)) $callback($itemData);
     }
 
     public function delete(string $prefix, ?\Closure $callback = null) : Generator {
