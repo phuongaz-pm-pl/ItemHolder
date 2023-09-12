@@ -48,15 +48,12 @@ class SQLiteProvider {
         return $isRegister;
     }
 
-    /**
-     * @throws Exception
-     */
     public function awaitGet(string $prefix): Generator {
         $connector = $this->getConnector();
         $rows = yield from $connector->asyncSelect(self::SELECT, ["prefix" => $prefix]);
 
         if (empty($rows)) {
-            throw new Exception("Data not found for prefix: $prefix");
+            return null;
         }
 
         $itemData = $this->decodeItemDataRaw($rows[0]["item_data"]);
@@ -76,7 +73,7 @@ class SQLiteProvider {
         $rows = yield from $connector->asyncSelect(self::SELECT, ["prefix" => $prefix]);
 
         if (empty($rows)) {
-            throw new Exception("Data not found for prefix: $prefix");
+            return null;
         }
         $itemData = $this->encodeItemData((is_array($itemData) ? $itemData : [$itemData]));
         yield $connector->asyncChange(self::UPDATE, ["prefix" => $prefix, "item_data" => $itemData]);

@@ -13,14 +13,14 @@ Simple item storage plugin for PocketMine.
     }
 
     public function testupdate() : void {
-        IHolderAPI::update("testcase1", [VanillaItems::GOLD_INGOT(), VanillaItems::GOLD_INGOT()], function(string $itemDataRaw) {
+        IHolderAPI::update("testcase1", [VanillaItems::GOLD_INGOT(), VanillaItems::GOLD_INGOT()], function(string|null $itemDataRaw) {
             var_dump($itemDataRaw);
             $this->testGet();
         });
     }
 
     public function testGet() : void {
-        IHolderAPI::get("testcase1", function (array|Item $itemData){
+        IHolderAPI::get("testcase1", function (array|Item|null $itemData){
             $itemData = (is_array($itemData)) ? $itemData : [$itemData];
             foreach ($itemData as $item) {
                 var_dump($item->getName());
